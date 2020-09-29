@@ -83,7 +83,7 @@ app.get('/', function(req, res) {
 // Database Model
 // Route
 // Get
-app.get('/gethistory/:id',cors(corsOptions),(req,res)=>{
+app.get('/gethistory/:id',(req,res)=>{
 OH.find({ID:req.params.id},(err,result)=>{
   if(result){
     res.json(result)
@@ -105,7 +105,7 @@ app.post('/orderHistory',(req,res)=>{
   });
   OrderHistory.save();
 })
-app.get("/vendorApprove",cors(corsOptions),(req,res1)=>{
+app.get("/vendorApprove",(req,res1)=>{
   RV.find({access:false},(err,res)=>{
     if(err){
       console.log(err);
@@ -264,7 +264,7 @@ app.post("/ProductPICNID/:id", avatar.single("upload"), (req, res) => {
 
 
 
-app.get("/getuserdata/:id",cors(corsOptions),(req, res) => {
+app.get("/getuserdata/:id",(req, res) => {
   RU.find({ _id: req.params.id }, function (err, result) {
     if (err) {
     } else {
@@ -272,7 +272,7 @@ app.get("/getuserdata/:id",cors(corsOptions),(req, res) => {
     }
   });
 });
-app.get("/getvendordata/:id",cors(corsOptions), (req, res) => {
+app.get("/getvendordata/:id", (req, res) => {
   RV.find({ _id: req.params.id }, function (err, result) {
     if (err) {
     } else {
@@ -322,7 +322,7 @@ app.get("/geTiMagE4/:id", (req, res) => {
   });
 });
 
-app.get("/AllProduct",cors(corsOptions), (req, res) => {
+app.get("/AllProduct", (req, res) => {
   RP.find({}, function (err, result) {
     if (err) {
       console.log(err, "err in fething product");
@@ -331,7 +331,7 @@ app.get("/AllProduct",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.get("/Product/:id",cors(corsOptions), (req, res) => {
+app.get("/Product/:id", (req, res) => {
   RP.find({ _id: req.params.id }, function (err, result) {
     if (err) {
       console.log(err, "err in fething product");
@@ -340,7 +340,7 @@ app.get("/Product/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.get("/refferF/:id",cors(corsOptions), (req, res) => {
+app.get("/refferF/:id", (req, res) => {
   RU.find({ _id: req.params.id }, function (err, result) {
     if (err) {
       console.log(err, "err in fething product");
