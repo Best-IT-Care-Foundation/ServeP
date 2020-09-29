@@ -63,16 +63,8 @@ const AddBrand = new mongoose.Schema({
     unique: true,
   },
 });
-var whitelist = ['http://www.3pshopping.com','https://www.3pshopping.com']
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
+
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(helmet());
@@ -264,7 +256,7 @@ app.post("/ProductPICNID/:id", avatar.single("upload"), (req, res) => {
 
 
 
-app.get("/getuserdata/:id",(req, res) => {
+app.get("/getuserdata/:id", (req, res) => {
   RU.find({ _id: req.params.id }, function (err, result) {
     if (err) {
     } else {
