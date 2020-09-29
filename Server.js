@@ -63,7 +63,7 @@ const AddBrand = new mongoose.Schema({
     unique: true,
   },
 });
-var whitelist = ['http://www.3pshopping.com']
+var whitelist = ['http://www.3pshopping.com','https://www.3pshopping.com']
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
@@ -93,7 +93,7 @@ OH.find({ID:req.params.id},(err,result)=>{
   }
 })
 })
-app.post('/orderHistory',cors(corsOptions),(req,res)=>{
+app.post('/orderHistory',(req,res)=>{
   var today = new Date();
   var date = today.getFullYear()+'-'+(today.getMonth()+1)+' '+today.getDate();
   var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -105,7 +105,7 @@ app.post('/orderHistory',cors(corsOptions),(req,res)=>{
   });
   OrderHistory.save();
 })
-app.get("/vendorApprove",(req,res1)=>{
+app.get("/vendorApprove",cors(corsOptions),(req,res1)=>{
   RV.find({access:false},(err,res)=>{
     if(err){
       console.log(err);
@@ -115,7 +115,7 @@ app.get("/vendorApprove",(req,res1)=>{
     }
   })
 })
-app.get("/geTNidiMagE/:id",cors(corsOptions), (req, res) => {
+app.get("/geTNidiMagE/:id", (req, res) => {
   ICN.find({}, function (err, result) {
     if (err) {
       console.log(err);
@@ -125,7 +125,7 @@ app.get("/geTNidiMagE/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.post('/approve/:id',cors(corsOptions),(req,res)=>{
+app.post('/approve/:id',(req,res)=>{
   RV.updateOne({_id:req.params.id},{access:true},(err,ok)=>{
     if(err){
       console.log(err);
@@ -135,7 +135,7 @@ app.post('/approve/:id',cors(corsOptions),(req,res)=>{
     }
   })
 })
-app.post("/deleteProduct/:id",cors(corsOptions),(req,res1)=>{
+app.post("/deleteProduct/:id",(req,res1)=>{
   let imageID = null ;
   RP.findOne({_id:req.params.id},(err,res2)=>{
     if(res2){
@@ -162,7 +162,7 @@ app.post("/deleteProduct/:id",cors(corsOptions),(req,res1)=>{
   })
 })
 
-app.post("/ProductEdit/:id",cors(corsOptions), (req, res) => {
+app.post("/ProductEdit/:id", (req, res) => {
   const {
     iteam,
     price,
@@ -191,7 +191,7 @@ app.post("/ProductEdit/:id",cors(corsOptions), (req, res) => {
     }
   })
 });
-app.post("/ProductEditV/:email/:id",cors(corsOptions), (req, res) => {
+app.post("/ProductEditV/:email/:id", (req, res) => {
   const {
     iteam,
     price,
@@ -229,7 +229,7 @@ app.post("/ProductEditV/:email/:id",cors(corsOptions), (req, res) => {
     }
   })
 });
-app.post("/DeleteV/:email/:id",cors(corsOptions), (req, res) => {
+app.post("/DeleteV/:email/:id", (req, res) => {
   RP.findOne({_id:req.params.id},(err,response)=>{
     if(err){
       console.log(err);
@@ -250,7 +250,7 @@ app.post("/DeleteV/:email/:id",cors(corsOptions), (req, res) => {
   })
 });
 
-app.post("/ProductPICNID/:id", avatar.single("upload"),cors(corsOptions), (req, res) => {
+app.post("/ProductPICNID/:id", avatar.single("upload"), (req, res) => {
   const image1 = req.file.buffer;
   const imageID = req.params.id;
   console.log(imageID);
@@ -264,7 +264,7 @@ app.post("/ProductPICNID/:id", avatar.single("upload"),cors(corsOptions), (req, 
 
 
 
-app.get("/getuserdata/:id",cors(corsOptions), (req, res) => {
+app.get("/getuserdata/:id",cors(corsOptions),(req, res) => {
   RU.find({ _id: req.params.id }, function (err, result) {
     if (err) {
     } else {
@@ -281,7 +281,7 @@ app.get("/getvendordata/:id",cors(corsOptions), (req, res) => {
   });
 });
 
-app.get("/geTiMagE/:id",(req, res) => {
+app.get("/geTiMagE/:id", (req, res) => {
   IC.find({ imageID: req.params.id }, function (err, result) {
     if (err) {
       console.log(err);
@@ -350,12 +350,12 @@ app.get("/refferF/:id",cors(corsOptions), (req, res) => {
   });
 });
 // Post
-app.post("/delete/:id",cors(corsOptions), (req, res) => {
+app.post("/delete/:id", (req, res) => {
   RU.deleteOne({ _id: req.params.id }, function (err) {
     if (err) console.log(err);
   });
 });
-app.post("/update/:id",cors(corsOptions), (req, res) => {
+app.post("/update/:id", (req, res) => {
   const { name, email } = req.body;
   console.log(name);
   RU.updateOne({ _id: req.params.id }, { name, email }, function (err, docs) {
@@ -365,7 +365,7 @@ app.post("/update/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.post("/updateEarn/:id",cors(corsOptions), (req, res) => {
+app.post("/updateEarn/:id", (req, res) => {
   const { earn } = req.body;
   RU.updateOne({ _id: req.params.id }, { earn }, function (err, docs) {
     if (err) {
@@ -378,7 +378,7 @@ app.post("/updateEarn/:id",cors(corsOptions), (req, res) => {
 
 
 // Add Product
-app.post("/ProductADD",cors(corsOptions), (req, res) => {
+app.post("/ProductADD", (req, res) => {
   const {
     iteam,
     price,
@@ -428,7 +428,7 @@ app.post("/ProductPIC", avatar.array("upload", 3), (req, res) => {
     }
   });
 });
-app.post("/ref/:id/:price",cors(corsOptions), (req, res) => {
+app.post("/ref/:id/:price", (req, res) => {
   const price7 = (req.params.price * 7) / 100;
   const price5 = (req.params.price * 5) / 100;
   RU.find({ _id: req.params.id }, function (err, data) {
@@ -468,7 +468,7 @@ app.post("/ref/:id/:price",cors(corsOptions), (req, res) => {
   });
 });
 // Login
-app.post("/Login",cors(corsOptions), (req, res) => {
+app.post("/Login", (req, res) => {
   const { email, password } = req.body;
   RU.findOne({ email: email }, function (err, noerr) {
     if (err) {
@@ -487,7 +487,7 @@ app.post("/Login",cors(corsOptions), (req, res) => {
   });
 });
 // Register
-app.post("/Register",cors(corsOptions), (req, res) => {
+app.post("/Register", (req, res) => {
   const { email, name, password, refferal } = req.body;
   const earn = 0;
   const ownrefferal = shortid.generate();
@@ -507,7 +507,7 @@ app.post("/Register",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.post("/Join",cors(corsOptions), (req, res) => {
+app.post("/Join", (req, res) => {
   const { email, name, password, Address, number } = req.body;
   console.log(number);
   const access = false
@@ -521,7 +521,7 @@ app.post("/Join",cors(corsOptions), (req, res) => {
   });
   vendor.save();
 });
-app.post("/CheckVendor",cors(corsOptions), (req, res) => {
+app.post("/CheckVendor", (req, res) => {
   const { email, password } = req.body;
   RV.findOne({ email, password }, function (err, noerr) {
     if (err) {
@@ -535,7 +535,7 @@ app.post("/CheckVendor",cors(corsOptions), (req, res) => {
 // Listening
 app.listen(port, async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/test", {
+    await mongoose.connect("mongodb://localhost:27017/error", {
       useNewUrlParser: true,
       useCreateIndex: true,
       useUnifiedTopology: true,
