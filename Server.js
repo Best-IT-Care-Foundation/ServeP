@@ -21,6 +21,19 @@ const IC = mongoose.model("imageCollect", imageCollect);
 const multer = require("multer");
 const shortid = require("shortid");
 
+const OrderHistory = new Schema({
+  history:{
+    type:Array,
+    required:true,
+  },
+  ID:{
+    type:String,
+    required:true,
+  },
+  date:{
+    type:String
+  }
+});
 const imageCollectNID = new Schema({
   image1:{
     type:Buffer,
@@ -32,6 +45,7 @@ const imageCollectNID = new Schema({
   },
 });
 const ICN = mongoose.model("imageNID", imageCollectNID);
+const OH = mongoose.model("OrderHistory", OrderHistory);
 const avatar = multer({
   limits: {
     fileSize: 1000000,
@@ -49,16 +63,7 @@ const AddBrand = new mongoose.Schema({
     unique: true,
   },
 });
-var whitelist = ['http://3pshopping.com', 'https://3pshopping.com']
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
+
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -70,7 +75,29 @@ app.get('/', function(req, res) {
 // Database Model
 // Route
 // Get
-app.get("/vendorApprove",cors(corsOptions),(req,res1)=>{
+app.get('/gethistory/:id',(req,res)=>{
+OH.find({ID:req.params.id},(err,result)=>{
+  if(result){
+    res.json(result)
+  }
+  else {
+    console.log(err);
+  }
+})
+})
+app.post('/orderHistory',(req,res)=>{
+  var today = new Date();
+  var date = today.getFullYear()+'-'+(today.getMonth()+1)+' '+today.getDate();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  const {history,ID} = req.body;
+  const OrderHistory = new OH({
+    history,
+    ID,
+    date:date + time
+  });
+  OrderHistory.save();
+})
+app.get("/vendorApprove",(req,res1)=>{
   RV.find({access:false},(err,res)=>{
     if(err){
       console.log(err);
@@ -80,7 +107,7 @@ app.get("/vendorApprove",cors(corsOptions),(req,res1)=>{
     }
   })
 })
-app.get("/geTNidiMagE/:id",cors(corsOptions), (req, res) => {
+app.get("/geTNidiMagE/:id", (req, res) => {
   ICN.find({}, function (err, result) {
     if (err) {
       console.log(err);
@@ -90,7 +117,7 @@ app.get("/geTNidiMagE/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.post('/approve/:id',cors(corsOptions),(req,res)=>{
+app.post('/approve/:id',(req,res)=>{
   RV.updateOne({_id:req.params.id},{access:true},(err,ok)=>{
     if(err){
       console.log(err);
@@ -100,7 +127,7 @@ app.post('/approve/:id',cors(corsOptions),(req,res)=>{
     }
   })
 })
-app.post("/deleteProduct/:id",cors(corsOptions),(req,res1)=>{
+app.post("/deleteProduct/:id",(req,res1)=>{
   let imageID = null ;
   RP.findOne({_id:req.params.id},(err,res2)=>{
     if(res2){
@@ -127,7 +154,7 @@ app.post("/deleteProduct/:id",cors(corsOptions),(req,res1)=>{
   })
 })
 
-app.post("/ProductEdit/:id",cors(corsOptions), (req, res) => {
+app.post("/ProductEdit/:id", (req, res) => {
   const {
     iteam,
     price,
@@ -156,7 +183,7 @@ app.post("/ProductEdit/:id",cors(corsOptions), (req, res) => {
     }
   })
 });
-app.post("/ProductEditV/:email/:id",cors(corsOptions), (req, res) => {
+app.post("/ProductEditV/:email/:id", (req, res) => {
   const {
     iteam,
     price,
@@ -194,7 +221,7 @@ app.post("/ProductEditV/:email/:id",cors(corsOptions), (req, res) => {
     }
   })
 });
-app.post("/DeleteV/:email/:id",cors(corsOptions), (req, res) => {
+app.post("/DeleteV/:email/:id", (req, res) => {
   RP.findOne({_id:req.params.id},(err,response)=>{
     if(err){
       console.log(err);
@@ -215,7 +242,7 @@ app.post("/DeleteV/:email/:id",cors(corsOptions), (req, res) => {
   })
 });
 
-app.post("/ProductPICNID/:id",cors(corsOptions), avatar.single("upload"), (req, res) => {
+app.post("/ProductPICNID/:id", avatar.single("upload"), (req, res) => {
   const image1 = req.file.buffer;
   const imageID = req.params.id;
   console.log(imageID);
@@ -229,7 +256,7 @@ app.post("/ProductPICNID/:id",cors(corsOptions), avatar.single("upload"), (req, 
 
 
 
-app.get("/getuserdata/:id",cors(corsOptions), (req, res) => {
+app.get("/getuserdata/:id", (req, res) => {
   RU.find({ _id: req.params.id }, function (err, result) {
     if (err) {
     } else {
@@ -237,7 +264,7 @@ app.get("/getuserdata/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.get("/getvendordata/:id",cors(corsOptions), (req, res) => {
+app.get("/getvendordata/:id", (req, res) => {
   RV.find({ _id: req.params.id }, function (err, result) {
     if (err) {
     } else {
@@ -246,7 +273,7 @@ app.get("/getvendordata/:id",cors(corsOptions), (req, res) => {
   });
 });
 
-app.get("/geTiMagE/:id",cors(corsOptions), (req, res) => {
+app.get("/geTiMagE/:id", (req, res) => {
   IC.find({ imageID: req.params.id }, function (err, result) {
     if (err) {
       console.log(err);
@@ -256,7 +283,7 @@ app.get("/geTiMagE/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.get("/geTiMagE2/:id",cors(corsOptions), (req, res) => {
+app.get("/geTiMagE2/:id", (req, res) => {
   IC.find({ imageID: req.params.id }, function (err, result) {
     if (err) {
       console.log(err);
@@ -266,7 +293,7 @@ app.get("/geTiMagE2/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.get("/geTiMagE3/:id",cors(corsOptions), (req, res) => {
+app.get("/geTiMagE3/:id", (req, res) => {
   IC.find({ imageID: req.params.id }, function (err, result) {
     if (err) {
       console.log(err);
@@ -276,7 +303,7 @@ app.get("/geTiMagE3/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.get("/geTiMagE4/:id",cors(corsOptions), (req, res) => {
+app.get("/geTiMagE4/:id", (req, res) => {
   IC.find({ imageID: req.params.id }, function (err, result) {
     if (err) {
       console.log(err);
@@ -287,7 +314,7 @@ app.get("/geTiMagE4/:id",cors(corsOptions), (req, res) => {
   });
 });
 
-app.get("/AllProduct",cors(corsOptions), (req, res) => {
+app.get("/AllProduct", (req, res) => {
   RP.find({}, function (err, result) {
     if (err) {
       console.log(err, "err in fething product");
@@ -296,7 +323,7 @@ app.get("/AllProduct",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.get("/Product/:id",cors(corsOptions), (req, res) => {
+app.get("/Product/:id", (req, res) => {
   RP.find({ _id: req.params.id }, function (err, result) {
     if (err) {
       console.log(err, "err in fething product");
@@ -305,7 +332,7 @@ app.get("/Product/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.get("/refferF/:id",cors(corsOptions), (req, res) => {
+app.get("/refferF/:id", (req, res) => {
   RU.find({ _id: req.params.id }, function (err, result) {
     if (err) {
       console.log(err, "err in fething product");
@@ -315,12 +342,12 @@ app.get("/refferF/:id",cors(corsOptions), (req, res) => {
   });
 });
 // Post
-app.post("/delete/:id",cors(corsOptions), (req, res) => {
+app.post("/delete/:id", (req, res) => {
   RU.deleteOne({ _id: req.params.id }, function (err) {
     if (err) console.log(err);
   });
 });
-app.post("/update/:id",cors(corsOptions), (req, res) => {
+app.post("/update/:id", (req, res) => {
   const { name, email } = req.body;
   console.log(name);
   RU.updateOne({ _id: req.params.id }, { name, email }, function (err, docs) {
@@ -330,7 +357,7 @@ app.post("/update/:id",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.post("/updateEarn/:id",cors(corsOptions), (req, res) => {
+app.post("/updateEarn/:id", (req, res) => {
   const { earn } = req.body;
   RU.updateOne({ _id: req.params.id }, { earn }, function (err, docs) {
     if (err) {
@@ -343,7 +370,7 @@ app.post("/updateEarn/:id",cors(corsOptions), (req, res) => {
 
 
 // Add Product
-app.post("/ProductADD",cors(corsOptions), (req, res) => {
+app.post("/ProductADD", (req, res) => {
   const {
     iteam,
     price,
@@ -374,7 +401,7 @@ app.post("/ProductADD",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.post("/ProductPIC",cors(corsOptions), avatar.array("upload", 3), (req, res) => {
+app.post("/ProductPIC", avatar.array("upload", 3), (req, res) => {
   const image1 = req.files[0].buffer;
   const image2 = req.files[1].buffer;
   const image3 = req.files[2].buffer;
@@ -393,47 +420,47 @@ app.post("/ProductPIC",cors(corsOptions), avatar.array("upload", 3), (req, res) 
     }
   });
 });
-app.post("/ref/:id/:price",cors(corsOptions), (req, res) => {
+app.post("/ref/:id/:price", (req, res) => {
   const price7 = (req.params.price * 7) / 100;
   const price5 = (req.params.price * 5) / 100;
   RU.find({ _id: req.params.id }, function (err, data) {
     if (err) {
       console.log(err);
     }
-    if (data) {
-      RU.find({ ownrefferal: data[0].refferal }, function (err, ref1data) {
-        if (ref1data) {
-          const earnValue = ref1data[0].earn;
-          const updateEarn = earnValue + price7;
-          RU.updateOne(
-            { _id: ref1data[0]._id },
-            { earn: updateEarn },
-            function (err, done1) {
-              if (done1) {
-                RU.find({ownrefferal:ref1data[0].refferal},function(err,data2nd){
-                   if(data2nd){
-                    const earnValue2 = data2nd[0].earn;
-                    const updateEarn2 = earnValue2 + price5;
-                    RU.updateOne({_id:data2nd[0]._id},{earn:updateEarn2},function(err,success){
-                      if(err){
-                        console.log(err);
-                      }
-                      if(success){
-                        res.json(':)');
-                      }
-                    })
-                   }
+    if (data && data[0].refferal !== '000000') {
+  RU.find({ ownrefferal: data[0].refferal }, function (err, ref1data) {
+    if (ref1data.length>0) {
+      const earnValue = ref1data[0].earn;
+      const updateEarn = earnValue + price7;
+      RU.updateOne(
+        { _id: ref1data[0]._id },
+        { earn: updateEarn },
+        function (err, done1) {
+          if (done1) {
+            RU.find({ownrefferal:ref1data[0].refferal},function(err,data2nd){
+               if(data2nd){
+                const earnValue2 = data2nd[0].earn;
+                const updateEarn2 = earnValue2 + price5;
+                RU.updateOne({_id:data2nd[0]._id},{earn:updateEarn2},function(err,success){
+                  if(err){
+                    console.log(err);
+                  }
+                  if(success){
+                    res.json(':)');
+                  }
                 })
-              }
-            }
-          );
+               }
+            })
+          }
         }
-      });
+      );
+    }
+  });
     }
   });
 });
 // Login
-app.post("/Login",cors(corsOptions), (req, res) => {
+app.post("/Login", (req, res) => {
   const { email, password } = req.body;
   RU.findOne({ email: email }, function (err, noerr) {
     if (err) {
@@ -452,7 +479,7 @@ app.post("/Login",cors(corsOptions), (req, res) => {
   });
 });
 // Register
-app.post("/Register",cors(corsOptions), (req, res) => {
+app.post("/Register", (req, res) => {
   const { email, name, password, refferal } = req.body;
   const earn = 0;
   const ownrefferal = shortid.generate();
@@ -472,7 +499,7 @@ app.post("/Register",cors(corsOptions), (req, res) => {
     }
   });
 });
-app.post("/Join",cors(corsOptions), (req, res) => {
+app.post("/Join", (req, res) => {
   const { email, name, password, Address, number } = req.body;
   console.log(number);
   const access = false
@@ -486,7 +513,7 @@ app.post("/Join",cors(corsOptions), (req, res) => {
   });
   vendor.save();
 });
-app.post("/CheckVendor",cors(corsOptions), (req, res) => {
+app.post("/CheckVendor", (req, res) => {
   const { email, password } = req.body;
   RV.findOne({ email, password }, function (err, noerr) {
     if (err) {
